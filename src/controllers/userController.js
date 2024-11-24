@@ -8,13 +8,13 @@ const createUser = async (req, res) => {
   console.log('Body recibido:', req.body);
   const { nombre, apellidos, email, password } = req.body;
 
-  // Validar que todos los campos estén presentes
+
   if (!nombre || !apellidos || !email || !password) {
     console.error('Faltan campos obligatorios.');
     return res.status(400).json({ error: 'Todos los campos son requeridos.' });
   }
 
-  // Validar longitud de la contraseña antes de hashearla
+
   if (password.length > 30) {
     console.error('La contraseña excede los 30 caracteres permitidos.');
     return res.status(400).json({ error: 'La contraseña no puede tener más de 30 caracteres.' });
