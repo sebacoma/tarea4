@@ -1,7 +1,7 @@
 const { db } = require('../models/userModel');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
-
+const { generateToken } = require('../utils/auth');
 
 
 const createUser = async (req, res) => {
@@ -34,9 +34,10 @@ const createUser = async (req, res) => {
           console.error('Error al insertar usuario en la base de datos:', err.message);
           return res.status(500).json({ error: `Error al crear usuario: ${err.message}` });
         }
-
         console.log('Usuario insertado correctamente.');
-        res.status(201).json({ message: 'Usuario creado exitosamente.' });
+        const token = generateToken(email);
+        res.status(201).json({ message: 'Usuario creado exitosamente.', token });       
+        
       }
     );
   } catch (error) {
@@ -71,6 +72,23 @@ const getUser = async (req, res) => {
     console.error('Error al obtener usuario:', error.message);
     res.status(500).json({ error: 'Error al obtener usuario.' });
   }
+};
+
+const getUsers = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
+  db.all(
+    `SELECT * FROM usuarios WHERE estaEliminado = 0 LIMIT ? OFFSET ?`,
+    [parseInt(limit), offset],
+    (err, rows) => {
+      if (err) {
+        console.error('Error al obtener usuarios:', err.message);
+        return res.status(500).json({ error: 'Error al obtener usuarios.' });
+      }
+      res.status(200).json(rows);
+    }
+  );
 };
 
 const updateUser = async (req, res) => {
@@ -136,4 +154,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, getUser, updateUser, deleteUser };
+module.exports = { createUser, getUser, updateUser, deleteUser, getUsers };
