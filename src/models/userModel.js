@@ -1,7 +1,17 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./database/database.sqlite');
+const path = require('path');
 
-// Crea la tabla de usuarios si no existe
+
+const dbPath = path.resolve(__dirname, '../../database/database.sqlite');
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('Error al conectar con la base de datos:', err.message);
+  } else {
+    console.log('Conexión a la base de datos exitosa.');
+  }
+});
+
+
 db.run(`
   CREATE TABLE IF NOT EXISTS usuarios (
     id TEXT PRIMARY KEY,
@@ -13,12 +23,4 @@ db.run(`
   )
 `);
 
-async function connectDB() {
-  const db = await open({
-    filename: './database/database.sqlite',
-    driver: sqlite3.Database,
-  });
-  return db;
-}
-
-module.exports = { connectDB };
+module.exports = { db };
