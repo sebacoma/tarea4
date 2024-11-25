@@ -2,9 +2,8 @@
 node_modules/
 .env
 
-# SQLite database
-*.sqlite
-*.sqlite3
+#
+.sqlite
 
 # Logs
 logs/
