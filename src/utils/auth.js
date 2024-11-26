@@ -3,8 +3,6 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const SECRET = process.env.SECRET || 'default_secret';
 
-console.log('El SECRET en auth.js es:', SECRET);
-
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, SECRET, { expiresIn: '2m' }); 
