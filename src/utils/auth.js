@@ -1,5 +1,9 @@
+require('dotenv').config();
+
 const jwt = require('jsonwebtoken');
-const SECRET = '12345'; 
+const SECRET = process.env.SECRET || 'default_secret';
+
+console.log('El SECRET en auth.js es:', SECRET);
 
 
 const generateToken = (userId) => {
