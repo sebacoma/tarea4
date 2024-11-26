@@ -76,20 +76,54 @@ const getUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
-  const offset = (page - 1) * limit;
+  const offset = (page - 1) * parseInt(limit);
 
-  db.all(
-    `SELECT * FROM usuarios WHERE estaEliminado = 0 LIMIT ? OFFSET ?`,
-    [parseInt(limit), offset],
-    (err, rows) => {
+  try {
+    // Obtener el número total de usuarios no eliminados
+    db.get(`SELECT COUNT(*) as total FROM usuarios WHERE estaEliminado = 0`, (err, totalResult) => {
       if (err) {
-        console.error('Error al obtener usuarios:', err.message);
-        return res.status(500).json({ error: 'Error al obtener usuarios.' });
+        console.error('Error al contar usuarios:', err.message);
+        return res.status(500).json({ error: 'Error al contar usuarios.' });
       }
-      res.status(200).json(rows);
-    }
-  );
+
+      const total = totalResult.total;
+      const totalPages = Math.ceil(total / parseInt(limit));
+
+      // Obtener usuarios paginados
+      db.all(
+        `SELECT * FROM usuarios WHERE estaEliminado = 0 LIMIT ? OFFSET ?`,
+        [parseInt(limit), offset],
+        (err, rows) => {
+          if (err) {
+            console.error('Error al obtener usuarios:', err.message);
+            return res.status(500).json({ error: 'Error al obtener usuarios.' });
+          }
+
+          // enlaces para paginación
+          const nextPage =
+            page < totalPages ? `/api/users?page=${parseInt(page) + 1}&limit=${limit}` : null;
+          const prevPage =
+            page > 1 ? `/api/users?page=${parseInt(page) - 1}&limit=${limit}` : null;
+
+          
+          res.status(200).json({
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages,
+            nextPage,
+            prevPage,
+            users: rows,
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error.message);
+    res.status(500).json({ error: 'Error al obtener usuarios.' });
+  }
 };
+
 
 const updateUser = async (req, res) => {
   const { id } = req.params;
