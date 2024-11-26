@@ -9,4 +9,8 @@ app.use(bodyParser.json());
 
 app.use('/api/users', userRoutes);
 
+app.get('/', (req, res) => {
+    res.send('Bienvenido a la API de Gestión de Usuarios');
+});
+
 module.exports = app;
